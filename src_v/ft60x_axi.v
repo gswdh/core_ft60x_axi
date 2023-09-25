@@ -29,56 +29,92 @@ module ft60x_axi
 // Params
 //-----------------------------------------------------------------
 #(
-     parameter RETIME_AXI       = 1
-    ,parameter AXI_ID           = 0
+     parameter RETIME_AXI       = 1,
+    parameter AXI_ID           = 0
 )
 //-----------------------------------------------------------------
 // Ports
 //-----------------------------------------------------------------
 (
-    // Inputs
-     input           clk_i
-    ,input           rst_i
-    ,input           ftdi_rxf_i
-    ,input           ftdi_txe_i
-    ,input  [ 31:0]  ftdi_data_in_i
-    ,input  [  3:0]  ftdi_be_in_i
-    ,input           outport_awready_i
-    ,input           outport_wready_i
-    ,input           outport_bvalid_i
-    ,input  [  1:0]  outport_bresp_i
-    ,input  [  3:0]  outport_bid_i
-    ,input           outport_arready_i
-    ,input           outport_rvalid_i
-    ,input  [ 31:0]  outport_rdata_i
-    ,input  [  1:0]  outport_rresp_i
-    ,input  [  3:0]  outport_rid_i
-    ,input           outport_rlast_i
-    ,input  [ 31:0]  gpio_inputs_i
+    // Clock / reset
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK, FREQ_HZ 1000000, PHASE 0.000, CLK_DOMAIN clk_i, ASSOCIATED_BUSIF m_axi4, ASSOCIATED_RESET rst_i, INSERT_VIP 0" *)
+    (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK CLK" *)
+    input           clk_i,
+    (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME RST, POLARITY ACTIVE_HIGH, INSERT_VIP 0, TYPE INTERCONNECT" *)
+    (* X_INTERFACE_INFO = "xilinx.com:signal:reset:1.0 RST RST" *)
+    input           rst_i,
 
-    // Outputs
-    ,output          ftdi_wrn_o
-    ,output          ftdi_rdn_o
-    ,output          ftdi_oen_o
-    ,output [ 31:0]  ftdi_data_out_o
-    ,output [  3:0]  ftdi_be_out_o
-    ,output          outport_awvalid_o
-    ,output [ 31:0]  outport_awaddr_o
-    ,output [  3:0]  outport_awid_o
-    ,output [  7:0]  outport_awlen_o
-    ,output [  1:0]  outport_awburst_o
-    ,output          outport_wvalid_o
-    ,output [ 31:0]  outport_wdata_o
-    ,output [  3:0]  outport_wstrb_o
-    ,output          outport_wlast_o
-    ,output          outport_bready_o
-    ,output          outport_arvalid_o
-    ,output [ 31:0]  outport_araddr_o
-    ,output [  3:0]  outport_arid_o
-    ,output [  7:0]  outport_arlen_o
-    ,output [  1:0]  outport_arburst_o
-    ,output          outport_rready_o
-    ,output [ 31:0]  gpio_outputs_o
+    // FTDI interface
+    input           ftdi_rxf_i,
+    input           ftdi_txe_i,
+    input  [ 31:0]  ftdi_data_in_i,
+    input  [  3:0]  ftdi_be_in_i,
+    output          ftdi_wrn_o,
+    output          ftdi_rdn_o,
+    output          ftdi_oen_o,
+    output [ 31:0]  ftdi_data_out_o,
+    output [  3:0]  ftdi_be_out_o,
+
+    // AXI interface
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 AWREADY" *)
+    input           outport_awready_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 WREADY" *)
+    input           outport_wready_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 BVALID" *)
+    input           outport_bvalid_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 BRESP" *)
+    input  [  1:0]  outport_bresp_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 BID" *)
+    input  [  3:0]  outport_bid_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 ARREADY" *)
+    input           outport_arready_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 RVALID" *)
+    input           outport_rvalid_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 RDATA" *)
+    input  [ 31:0]  outport_rdata_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 RRESP" *)
+    input  [  1:0]  outport_rresp_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 RID" *)
+    input  [  3:0]  outport_rid_i,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 RLAST" *)
+    input           outport_rlast_i,
+
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 AWVALID" *)
+    output          outport_awvalid_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 AWADDR" *)
+    output [ 31:0]  outport_awaddr_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 AWID" *)
+    output [  3:0]  outport_awid_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 AWLEN" *)
+    output [  7:0]  outport_awlen_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 AWBURST" *)
+    output [  1:0]  outport_awburst_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 WVALID" *)
+    output          outport_wvalid_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 WDATA" *)
+    output [ 31:0]  outport_wdata_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 WSTRB" *)
+    output [  3:0]  outport_wstrb_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 WLAST" *)
+    output          outport_wlast_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 BREADY" *)
+    output          outport_bready_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 ARVALID" *)
+    output          outport_arvalid_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 ARADDR" *)
+    output [ 31:0]  outport_araddr_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 ARID" *)
+    output [  3:0]  outport_arid_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 ARLEN" *)
+    output [  7:0]  outport_arlen_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 ARBURST" *)
+    output [  1:0]  outport_arburst_o,
+    (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m_axi4 RREADY" *)
+    output          outport_rready_o,
+
+    // GPIOs
+    input  [ 31:0]  gpio_inputs_i,
+    output [ 31:0]  gpio_outputs_o
 );
 
 
@@ -227,25 +263,25 @@ wire          tx_accept_w;
 ft60x_fifo
 u_ram
 (
-     .clk_i(clk_i)
-    ,.rst_i(rst_i)
-    ,.ftdi_rxf_i(ftdi_rxf_i)
-    ,.ftdi_txe_i(ftdi_txe_i)
-    ,.ftdi_data_in_i(ftdi_data_in_i)
-    ,.ftdi_be_in_i(ftdi_be_in_i)
-    ,.ftdi_wrn_o(ftdi_wrn_o)
-    ,.ftdi_rdn_o(ftdi_rdn_o)
-    ,.ftdi_oen_o(ftdi_oen_o)
-    ,.ftdi_data_out_o(ftdi_data_out_o)
-    ,.ftdi_be_out_o(ftdi_be_out_o)
-
-    ,.inport_valid_i(tx_valid_w)
-    ,.inport_data_i(tx_data_w)
-    ,.inport_accept_o(tx_accept_w)
-
-    ,.outport_valid_o(rx_valid_w)
-    ,.outport_data_o(rx_data_w)
-    ,.outport_accept_i(rx_accept_w)
+     .clk_i(clk_i),
+    .rst_i(rst_i),
+    .ftdi_rxf_i(ftdi_rxf_i),
+    .ftdi_txe_i(ftdi_txe_i),
+    .ftdi_data_in_i(ftdi_data_in_i),
+    .ftdi_be_in_i(ftdi_be_in_i),
+    .ftdi_wrn_o(ftdi_wrn_o),
+    .ftdi_rdn_o(ftdi_rdn_o),
+    .ftdi_oen_o(ftdi_oen_o),
+    .ftdi_data_out_o(ftdi_data_out_o),
+    .ftdi_be_out_o(ftdi_be_out_o)
+,
+    .inport_valid_i(tx_valid_w),
+    .inport_data_i(tx_data_w),
+    .inport_accept_o(tx_accept_w)
+,
+    .outport_valid_o(rx_valid_w),
+    .outport_data_o(rx_data_w),
+    .outport_accept_i(rx_accept_w)
 );
 
 //-----------------------------------------------------------------
